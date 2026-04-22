@@ -74,7 +74,7 @@ def _serialize(obj: object) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Tool definitions — these are the 19 MCP tools the agent can call
+# Tool definitions — these are the 21 MCP tools the agent can call
 # ---------------------------------------------------------------------------
 
 @app.list_tools()

@@ -22,7 +22,7 @@ AUDIT_DIR = ANALYSIS_DIR / "audit"
 # Directories the agent is allowed to READ from
 READ_ALLOWLIST: list[str] = [
     "/cases",
-    "/mnt",
+    "/mnt/evidencechain",
     "/tmp/evidencechain",
     str(EVIDENCE_BASE_DIR),
     str(ANALYSIS_DIR),

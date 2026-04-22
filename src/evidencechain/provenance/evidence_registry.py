@@ -41,26 +41,30 @@ class EvidenceRegistry:
             self._counters[source_type] += 1
             seq = self._counters[source_type]
 
-        evidence_id = f"EVD-{source_type}-{seq:03d}"
+            evidence_id = f"EVD-{source_type}-{seq:03d}"
 
-        self._evidence[evidence_id] = {
-            "evidence_id": evidence_id,
-            "source_type": source_type,
-            "path": path,
-            "sha256": sha256,
-            **(metadata or {}),
-        }
+            self._evidence[evidence_id] = {
+                "evidence_id": evidence_id,
+                "source_type": source_type,
+                "path": path,
+                "sha256": sha256,
+                **(metadata or {}),
+            }
 
-        return evidence_id
+            return evidence_id
 
     def get(self, evidence_id: str) -> dict | None:
         """Get metadata for a registered evidence source."""
-        return self._evidence.get(evidence_id)
+        with self._lock:
+            item = self._evidence.get(evidence_id)
+            return dict(item) if item is not None else None
 
     def list_all(self) -> list[dict]:
         """List all registered evidence sources."""
-        return list(self._evidence.values())
+        with self._lock:
+            return [dict(item) for item in self._evidence.values()]
 
     def exists(self, evidence_id: str) -> bool:
         """Check if an evidence ID is registered."""
-        return evidence_id in self._evidence
+        with self._lock:
+            return evidence_id in self._evidence

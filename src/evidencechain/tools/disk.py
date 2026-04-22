@@ -340,6 +340,12 @@ class DiskToolExecutor(BaseToolExecutor):
             id_str = ",".join(str(eid) for eid in event_ids)
             command.extend(["--inc", id_str])
 
+        # Apply date range filters if specified
+        if date_start:
+            command.extend(["--sd", date_start])
+        if date_end:
+            command.extend(["--ed", date_end])
+
         tool_result, raw_output = self.run_tool(
             tool_name="parse_event_logs",
             evidence_id=evidence_id,

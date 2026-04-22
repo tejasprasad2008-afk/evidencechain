@@ -491,7 +491,7 @@ check("Command guard denies curl", "curl" in DENIED_BINARIES)
 check("Command guard denies python3", "python3" in DENIED_BINARIES)
 
 try:
-    execute(["rm", "-rf", "/"])
+    execute(["rm", "--version"])
     check("Command guard blocks rm execution", False)
 except CommandDeniedError:
     check("Command guard blocks rm execution", True)
