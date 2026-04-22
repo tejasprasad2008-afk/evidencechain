@@ -8,36 +8,8 @@ Built for the [SANS Find Evil! Hackathon](https://findevil.devpost.com/) (April-
 
 ## Architecture
 
-```
-+------------------+        stdio/MCP         +--------------------+
-|                  | <======================> |                    |
-|   AI Agent       |    21 typed tools        |  EvidenceChain     |
-|   (Qoder /       |    JSON responses        |  MCP Server        |
-|    Claude Code)  |                          |                    |
-|                  |                          +--------+-----------+
-+------------------+                                   |
-                                                       |
-                    +----------------------------------+----------------------------------+
-                    |                  |                |                |                 |
-              +-----+------+   +------+------+   +-----+------+  +-----+-----+   +------+------+
-              |  9 Disk    |   |  6 Memory   |   | 4 Enrich   |  |  Correct  |   |  Report     |
-              |  Tools     |   |  Tools      |   | Tools      |  |  Engine   |   |  Generator  |
-              +-----+------+   +------+------+   +-----+------+  +-----+-----+   +------+------+
-                    |                  |                |                |                 |
-              +-----+------+   +------+------+   +-----+------+  +-----+-----+   +------+------+
-              | Sleuth Kit |   | Volatility 3|   | VirusTotal |  | 7 Detectors|  | Jinja2      |
-              | EZ Tools   |   | (pslist,    |   | AbuseIPDB  |  | Confidence |  | Templates   |
-              | log2timeline|  |  psscan,    |   | MalwareBaz |  | Scorer     |  | MITRE KB    |
-              | RegRipper  |   |  malfind,   |   | LOLBAS     |  | Reinvest.  |  | Narratives  |
-              |            |   |  netscan)   |   | AlienVault |  | Planner    |  |             |
-              +------------+   +-------------+   +------------+  +-----------+   +-------------+
-                                                                       |
-                                                              +--------+--------+
-                                                              |  Evidence Store  |
-                                                              |  Audit Logger    |
-                                                              |  (JSONL)         |
-                                                              +-----------------+
-```
+![EvidenceChain — Autonomous Forensic Investigation Flow](evidencechain%20graph.svg)
+
 
 ### Security Boundaries (Architectural, Not Prompt-Based)
 
