@@ -1,7 +1,7 @@
 """EvidenceChain MCP Server — entry point.
 
-This is the main MCP server that exposes all 19 forensic tools and
-5 contradiction detectors as typed functions. It runs via stdio transport
+This is the main MCP server that exposes all 21 forensic tools and
+7 contradiction detectors as typed functions. It runs via stdio transport
 and is connected to by the Qoder agent.
 
 Usage:

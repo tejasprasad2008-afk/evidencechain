@@ -38,11 +38,11 @@ def validate_read_path(path: str) -> Path:
             f"Path traversal detected in '{path}'. Resolved to '{resolved}'."
         )
 
-    # Check against allowlist
+    # Check against allowlist (exact match or proper child via os.sep)
     resolved_str = str(resolved)
     for allowed in READ_ALLOWLIST:
         allowed_resolved = str(Path(allowed).resolve())
-        if resolved_str.startswith(allowed_resolved):
+        if resolved_str == allowed_resolved or resolved_str.startswith(allowed_resolved + os.sep):
             return resolved
 
     raise PathValidationError(
@@ -70,7 +70,7 @@ def validate_write_path(path: str) -> Path:
     resolved_str = str(resolved)
     for allowed in WRITE_ALLOWLIST:
         allowed_resolved = str(Path(allowed).resolve())
-        if resolved_str.startswith(allowed_resolved):
+        if resolved_str == allowed_resolved or resolved_str.startswith(allowed_resolved + os.sep):
             return resolved
 
     raise PathValidationError(

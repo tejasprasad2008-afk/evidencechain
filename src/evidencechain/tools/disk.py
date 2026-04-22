@@ -118,6 +118,8 @@ class DiskToolExecutor(BaseToolExecutor):
         evidence_id = self.registry.register("disk", image_path)
         mount_base = Path("/mnt/evidencechain")
         mount_point = mount_base / evidence_id
+        mount_base.mkdir(parents=True, exist_ok=True)
+        mount_point.mkdir(parents=True, exist_ok=True)
 
         if image_type.upper() == "E01":
             # Step 1: Use ewfmount to expose E01 as raw device
@@ -590,6 +592,7 @@ class DiskToolExecutor(BaseToolExecutor):
 
     def unmount_evidence(self, mount_point: str) -> ToolResult:
         """Unmount a previously mounted disk image."""
+        validate_read_path(mount_point)
         command = ["umount", mount_point]
 
         tool_result, _ = self.run_tool(
@@ -681,7 +684,8 @@ class DiskToolExecutor(BaseToolExecutor):
         target = csv_files[0]
         try:
             content = target.read_text(errors="replace")
-            if len(content) > MAX_OUTPUT_SIZE:
+            original_size = len(content)
+            if original_size > MAX_OUTPUT_SIZE:
                 # Truncate at last newline before limit
                 truncated = content[:MAX_OUTPUT_SIZE]
                 last_nl = truncated.rfind("\n")
@@ -691,7 +695,7 @@ class DiskToolExecutor(BaseToolExecutor):
                     content = truncated
                 logger.warning(
                     "CSV output truncated from %d to %d bytes: %s",
-                    len(content),
+                    original_size,
                     MAX_OUTPUT_SIZE,
                     target.name,
                 )
