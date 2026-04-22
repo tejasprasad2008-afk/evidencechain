@@ -1,0 +1,49 @@
+{
+  "report_id": "{{ report.report_id }}",
+  "generated_at": "{{ report.generated_at }}",
+  "summary": {
+    "total_atoms": {{ report.total_atoms }},
+    "total_findings": {{ report.total_findings }},
+    "total_executions": {{ report.total_executions }},
+    "confirmed_count": {{ report.confirmed_findings | length }},
+    "draft_count": {{ report.draft_findings | length }},
+    "under_review_count": {{ report.under_review_findings | length }},
+    "retracted_count": {{ report.retracted_findings | length }},
+    "contradiction_count": {{ report.contradictions | length }},
+    "converged": {{ "true" if report.correction_summary.converged else "false" }}
+  },
+  "confirmed_findings": [
+{% for f in report.confirmed_findings %}
+    {
+      "finding_id": "{{ f.finding_id }}",
+      "title": "{{ f.title }}",
+      "category": "{{ f.category }}",
+      "confidence_score": {{ f.confidence_score }},
+      "evidence_type": "{{ f.evidence_type }}",
+      "status": "{{ f.status }}",
+      "description": {{ f.description | tojson }},
+      "mitre_techniques": {{ f.mitre_techniques | tojson }},
+      "supporting_atoms": {{ f.supporting_evidence | length }},
+      "missing_expected": {{ f.missing_expected | tojson }}
+    }{{ "," if not loop.last else "" }}
+{% endfor %}
+  ],
+  "contradictions": [
+{% for c in report.contradictions %}
+    {
+      "contradiction_id": "{{ c.contradiction_id }}",
+      "pattern_type": "{{ c.pattern_type }}",
+      "severity": "{{ c.severity }}",
+      "description": {{ c.description | tojson }},
+      "resolution": "{{ c.resolution }}"
+    }{{ "," if not loop.last else "" }}
+{% endfor %}
+  ],
+  "correction_summary": {
+    "total_contradictions": {{ report.correction_summary.total_contradictions }},
+    "unresolved": {{ report.correction_summary.unresolved_contradictions }},
+    "critical": {{ report.correction_summary.critical_contradictions }},
+    "converged": {{ "true" if report.correction_summary.converged else "false" }}
+  },
+  "mitre_coverage": {{ report.mitre_coverage | tojson }}
+}

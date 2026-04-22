@@ -1,0 +1,160 @@
+# EvidenceChain Forensic Investigation Report
+
+**Report ID:** {{ report.report_id }}
+**Generated:** {{ report.generated_at }}
+
+---
+
+## Executive Summary
+
+| Metric | Count |
+|--------|-------|
+| Evidence Atoms Analyzed | {{ report.total_atoms }} |
+| Tool Executions | {{ report.total_executions }} |
+| Total Findings | {{ report.total_findings }} |
+| Confirmed Findings | {{ report.confirmed_findings | length }} |
+| Under Review | {{ report.under_review_findings | length }} |
+| Retracted | {{ report.retracted_findings | length }} |
+| Contradictions Detected | {{ report.contradictions | length }} |
+| Self-Correction Converged | {{ "Yes" if report.correction_summary.converged else "No" }} |
+
+---
+
+## Confirmed Findings
+{% if report.confirmed_findings %}
+{% for f in report.confirmed_findings %}
+### {{ f.category_icon }} {{ f.title }}
+
+- **Category:** {{ f.category_label }}
+- **Confidence:** {{ "%.0f" | format(f.confidence_score * 100) }}% ({{ f.evidence_type }})
+- **Status:** {{ f.status | upper }}
+- **Finding ID:** `{{ f.finding_id }}`
+
+{{ f.description }}
+
+{% if f.mitre_techniques %}
+**MITRE ATT&CK:**
+{% for t in f.mitre_techniques %}
+- {{ t.id }} — {{ t.name }} ({{ t.tactic }})
+{% endfor %}
+{% endif %}
+
+**Supporting Evidence ({{ f.supporting_evidence | length }} atoms):**
+{% for e in f.supporting_evidence %}
+- `{{ e.atom_id }}` [{{ e.artifact_type }}] via {{ e.tool_name }}{% if e.key_data %} — {{ e.key_data }}{% endif %}
+
+{% endfor %}
+{% if f.missing_expected %}
+**Missing Expected Evidence:** {{ f.missing_expected | join(", ") }}
+{% endif %}
+{% if f.contradicting_evidence %}
+**Contradicting Evidence:** {{ f.contradicting_evidence | length }} atom(s)
+{% endif %}
+
+---
+{% endfor %}
+{% else %}
+*No findings have been confirmed yet.*
+{% endif %}
+
+## Findings Under Review
+{% if report.under_review_findings %}
+{% for f in report.under_review_findings %}
+### {{ f.category_icon }} {{ f.title }}
+
+- **Confidence:** {{ "%.0f" | format(f.confidence_score * 100) }}% — **Needs additional evidence**
+- **Category:** {{ f.category_label }}
+- **Investigation Note:** {{ f.investigation_note }}
+
+{{ f.description }}
+
+---
+{% endfor %}
+{% else %}
+*No findings are currently under review.*
+{% endif %}
+
+## Draft Findings
+{% if report.draft_findings %}
+{% for f in report.draft_findings %}
+- {{ f.category_icon }} **{{ f.title }}** — {{ "%.0f" | format(f.confidence_score * 100) }}% confidence ({{ f.category_label }})
+{% endfor %}
+{% else %}
+*No draft findings.*
+{% endif %}
+
+{% if report.retracted_findings %}
+## Retracted Findings
+
+*These findings were retracted by the self-correction engine due to contradictions or insufficient evidence.*
+
+{% for f in report.retracted_findings %}
+- ~~{{ f.title }}~~ — Retracted ({{ f.revision_count }} revisions)
+{% endfor %}
+{% endif %}
+
+---
+
+## Self-Correction Engine Report
+
+| Metric | Value |
+|--------|-------|
+| Contradictions Detected | {{ report.correction_summary.total_contradictions }} |
+| Unresolved | {{ report.correction_summary.unresolved_contradictions }} |
+| Critical | {{ report.correction_summary.critical_contradictions }} |
+| Findings Confirmed | {{ report.correction_summary.findings_confirmed }} |
+| Findings Retracted | {{ report.correction_summary.findings_retracted }} |
+| Converged | {{ "Yes" if report.correction_summary.converged else "No" }} |
+
+{% if report.contradictions %}
+### Detected Contradictions
+
+{% for c in report.contradictions %}
+**{{ c.pattern_type | upper }}** ({{ c.severity | upper }}) — `{{ c.contradiction_id }}`
+: {{ c.description }}
+: *Resolution:* {{ c.resolution }}
+
+{% endfor %}
+{% endif %}
+
+---
+
+{% if report.mitre_coverage %}
+## MITRE ATT&CK Coverage
+
+| Technique | Name | Tactic | Findings |
+|-----------|------|--------|----------|
+{% for t in report.mitre_coverage %}
+| {{ t.id }} | {{ t.name }} | {{ t.tactic }} | {{ t.finding_count }} |
+{% endfor %}
+{% endif %}
+
+---
+
+{% if report.timeline %}
+## Investigation Timeline ({{ report.timeline | length }} events)
+
+| Timestamp | Source | Description |
+|-----------|--------|-------------|
+{% for e in report.timeline[:50] %}
+| {{ e.timestamp }} | {{ e.source }} | {{ e.description }} |
+{% endfor %}
+{% if report.timeline | length > 50 %}
+| ... | ... | *{{ report.timeline | length - 50 }} additional events omitted* |
+{% endif %}
+{% endif %}
+
+---
+
+## Evidence Provenance
+
+Every finding in this report is backed by evidence atoms produced by specific
+tool executions. The full audit trail is available in the JSONL log files under
+the `analysis/audit/` directory.
+
+- `execution_log.jsonl` — Every tool command executed
+- `findings_log.jsonl` — Every finding registered and updated
+- `contradiction_log.jsonl` — Every contradiction detected
+- `correction_log.jsonl` — Every self-correction iteration
+
+**EvidenceChain** — Autonomous forensic investigation with architectural self-correction.

@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Distribution / packaging
+*.egg-info/
+*.egg
+dist/
+build/
+
+# VM images
+*.ova
+*.vmdk
+*.vdi
+*.qcow2
+
+# Evidence / case data (never commit real evidence)
+/cases/
+*.E01
+*.dd
+*.raw
+*.mem
+
+# Analysis output (generated at runtime)
+/analysis/
+/reports/
+
+# Environment / secrets
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
