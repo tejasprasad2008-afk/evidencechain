@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "evidencechain"
+version = "0.1.0"
+description = "Autonomous forensic investigation agent with self-correction for SANS SIFT Workstation"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = [
+    "mcp>=1.0",
+    "pydantic>=2.0",
+    "jinja2>=3.1",
+    "markdown>=3.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/evidencechain"]
