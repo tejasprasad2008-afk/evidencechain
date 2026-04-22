@@ -20,6 +20,7 @@ correctness at the code level regardless of what the LLM believes.
 
 from __future__ import annotations
 
+import hashlib
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
@@ -56,10 +57,34 @@ class BaseDetector(ABC):
         ...
 
     def _register(self, contradiction: ContradictionRecord) -> ContradictionRecord:
-        """Register a contradiction in the store and audit log."""
+        """Register a contradiction in the store and audit log (idempotent).
+
+        Computes a deterministic dedup key from stable fields so repeated
+        detector runs don't create duplicate records for the same logical
+        contradiction.
+        """
+        dedup_key = self._dedup_key(contradiction)
+
+        # Check if an equivalent contradiction already exists
+        for existing in self.store.contradictions.values():
+            if self._dedup_key(existing) == dedup_key:
+                return existing
+
         self.store.add_contradiction(contradiction)
         self.audit.log_contradiction(contradiction)
         return contradiction
+
+    @staticmethod
+    def _dedup_key(c: ContradictionRecord) -> str:
+        """Derive a stable fingerprint from a contradiction's identifying fields."""
+        parts = [
+            c.pattern_type.value,
+            c.atom_a_id or "",
+            c.atom_b_id or "",
+            ",".join(sorted(c.affected_finding_ids)),
+        ]
+        raw = "|".join(parts)
+        return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
 # ==========================================================================
